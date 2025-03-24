@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('campaign_influencer', function (Blueprint $table) {
             $table->id();
             $table->foreignId('campaign_id')->constrained()->onDelete('cascade');
-            $table->foreignId('influencer_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('influencer_id')->constrained()->onDelete('cascade');
             $table->string('task_status')->default('assigned');
+            $table->string('original_url')->nullable();
+            $table->string('short_code')->unique()->nullable();
+            $table->integer('clicks')->default(0);
+            $table->json('ip_addresses')->nullable();
             $table->timestamps();
         });
     }

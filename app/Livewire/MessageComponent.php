@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Illuminate\Support\Str;
 
 class MessageComponent extends Component
 {
@@ -65,10 +66,20 @@ class MessageComponent extends Component
 
     public function createContract()
     {
-        dd($this->description, $this->amount, $this->url);
-        return session()->flash('success', 'Updated Succnnnnessfully!');
-        session()->flash('success', 'Sent Successfully !');
-        // dd('helo');
+        $shortCode = Str::random(8);
+
+        // Save to the database
+        $shortenedUrl = ShortenedUrl::create([
+            'original_url' => $this->url,
+            'short_code' => $shortCode,
+            'clicks' => 0,
+            'ip_addresses' => [],
+        ]);
+
+        // Return the unique URL
+        $uniqueUrl = url('/short/' . $shortCode);
+
+        session()->flash('success', 'Contract created successfully! Unique URL: ' . $uniqueUrl);
     }
 
     public function render()
