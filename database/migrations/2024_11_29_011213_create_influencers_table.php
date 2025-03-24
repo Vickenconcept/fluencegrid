@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('influencers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('influncers_group_id');
-            $table->string('influnencer_id');
+            $table->foreignId('influencers_group_id');
+            $table->string('influencer_id');
             $table->string('platform');
             $table->longText('content');
             $table->json('emails')->nullable();

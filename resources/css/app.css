@@ -4,13 +4,17 @@
 
 
 .form-control {
-    @apply bg-gray-50 border border-gray-300   rounded-lg focus:ring-slate-900 focus:border-slate-900  block w-full p-2.5 
+    @apply bg-gray-50 border border-gray-300   rounded-lg focus:ring-slate-900 focus:border-slate-900  block w-full p-2.5 placeholder-gray-500 placeholder:italic
 }
 .btn {
     @apply block w-full rounded-lg bg-[#0F1523] px-6 py-3 text-xs font-medium capitalize leading-normal text-white shadow transition duration-150 ease-in-out
 }
 .btn2 {
     @apply flex items-center bg-blue-100 text-[#0F1523] hover:bg-[#0F1523] hover:text-blue-100 transition-all duration-300 font-semibold rounded-md whitespace-nowrap  px-4 py-2 ml-4
+}
+
+.btn-danger {
+  @apply block w-full rounded-lg bg-red-600 px-6 py-3 text-xs font-medium capitalize leading-normal text-white shadow transition duration-150 ease-in-out
 }
 
 

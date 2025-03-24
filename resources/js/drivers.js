@@ -15,19 +15,19 @@ if (!localStorage.getItem("driverTourShown")) {
         steps: [
             {
                 element: "#facebook",
-                popover: { title: "Facebook Influncers", description: "Description" },
+                popover: { title: "Facebook influencers", description: "Description" },
             },
             {
                 element: "#instagram",
-                popover: { title: "Instagram Influncers", description: "Description" },
+                popover: { title: "Instagram influencers", description: "Description" },
             },
             {
                 element: "#youtube",
-                popover: { title: "Youtube Influncers", description: "Description" },
+                popover: { title: "Youtube influencers", description: "Description" },
             },
             {
                 element: "#tiktok",
-                popover: { title: "Tiktok Influncers", description: "Description" },
+                popover: { title: "Tiktok influencers", description: "Description" },
             },
             {
                 element: "#response_chart",

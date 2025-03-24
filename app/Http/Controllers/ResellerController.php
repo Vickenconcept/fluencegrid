@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\WelcomeMail;
 use App\Models\Reseller;
 use App\Models\User;
 use GuzzleHttp\Exception\RequestException;
@@ -48,7 +49,7 @@ class ResellerController extends Controller
                 'resell_id' => $owner->id,
             ]);
 
-            // Mail::to($data['email'])->send(new WelcomeMail($data['password']));
+            Mail::to($data['email'])->send(new WelcomeMail($data['password']));
             // Your code that might throw the duplicate entry error
         } catch (\Illuminate\Database\QueryException $e) {
             // Handle the exception

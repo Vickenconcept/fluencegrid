@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Influencer;
-use App\Models\InfluncersGroup;
+use App\Models\influencersGroup;
 use App\Services\InfluencerService;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
@@ -40,7 +40,7 @@ class Instagram extends Component
         $this->followers = 1000;
         $this->details =  Cache::get("{$this->platform}_details" . auth()->id()) ?? [];
 
-        $this->groups = InfluncersGroup::latest()->get();
+        $this->groups = influencersGroup::latest()->get();
     }
 
     public function getInfluencer()
@@ -95,9 +95,9 @@ class Instagram extends Component
         ]);
 
         $user = auth()->user();
-        $user->influncersGroups()->create($validateData);
+        $user->influencersGroups()->create($validateData);
 
-        $this->groups = InfluncersGroup::latest()->get();
+        $this->groups = influencersGroup::latest()->get();
         $this->name = '';
         $this->description = '';
     }
@@ -117,8 +117,8 @@ class Instagram extends Component
 
         foreach ($validatedData['selectedGroups'] as $groupId) {
             Influencer::create([
-                'influncers_group_id' => $groupId,
-                'influnencer_id' => $validatedData['selectInfluencer']['instagramId'],
+                'influencers_group_id' => $groupId,
+                'influencer_id' => $validatedData['selectInfluencer']['instagramId'],
                 'platform' => 'instagram',
                 'content' => json_encode($validatedData['selectInfluencer']),
             ]);

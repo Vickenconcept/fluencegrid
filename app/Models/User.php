@@ -46,8 +46,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function influncersGroups(){
-        return $this->hasMany(InfluncersGroup::class, 'user_id');
+    public function influencersGroups(){
+        return $this->hasMany(influencersGroup::class, 'user_id');
     }
     public function campaigns(){
         return $this->hasMany(Campaign::class, 'user_id');
@@ -56,5 +56,9 @@ class User extends Authenticatable
     public function resellers()
     {
         return $this->hasMany(Reseller::class);
+    }
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class);
     }
 }

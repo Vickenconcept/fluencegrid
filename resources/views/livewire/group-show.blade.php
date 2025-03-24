@@ -2,11 +2,17 @@
     {{ $group->name }}
 @endsection
 
-<div x-data="{ openModal: false, isContentModal: false, influencer_id: null, influencer_content: null }" class="px-3 pb-32 overflow-y-auto h-screen">
+<div x-data="{ openModal: false, isContentModal: false, influencer_id: null, influencer_content: null, openGeneralMessageModal : false }" class="px-3 pb-32 overflow-y-auto h-screen">
     <div class="flex justify-between items-center pb-10">
 
         <h3 class="capitalize font-bold text-3xl ">{{ $group->name }}</h3>
-        <div>
+        <div class="flex items-center space-x-5">
+
+            <button type="button"  @click="openGeneralMessageModal = true"
+                class="btn">
+               Reach All influencers
+
+            </button>
             <button type="button" data-item-id="{{ $group->id }}"
                 class="group-delete-btn bg-gray-50 hover:bg-red-500 group  px-3 py-2 rounded-md text-sm flex items-center delay-100 transition-all duration-500 ease-in-out">
                 <i
@@ -274,7 +280,7 @@
                                                 @if (count(json_decode($emails, true)) > 0)
                                                     <select
                                                         class="rounded-lg border-2 border-gray-200 py-2.5  text-sm font-semibold bg-gray-50"
-                                                        wire:model="selectedEmail">
+                                                        wire:model.live="selectedEmail">
                                                         <option value="null" selected>Select email</option>
                                                         @foreach (json_decode($emails, true) ?? [] as $email)
                                                             <option value="{{ $email }}">
@@ -310,7 +316,7 @@
                                                 @if (count(json_decode($emails, true)) > 0)
                                                     <select
                                                         class="rounded-lg border-2 border-gray-200   text-sm font-semibold bg-gray-50"
-                                                        wire:model="selectedEmail">
+                                                        wire:model.live="selectedEmail">
                                                         <option value="null" selected>Select email</option>
                                                         @foreach (json_decode($emails, true) ?? [] as $email)
                                                             <option value="{{ $email }}">
@@ -334,6 +340,81 @@
                                             <span wire:loading.target="sendCustomCampaignInvite"
                                                 wire:loading.remove>Send mail</span>
                                             <span wire:loading.target="sendCustomCampaignInvite"
+                                                wire:loading>Send...</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </li>
+                    @empty
+                        <div class="h-full flex justify-center items-center">
+
+                            <div class="text-center p-5 text-gray-500">
+                                <p class="text-md font-semibold">NO DATA FOUND</p>
+                                <p><i class='bx bxs-folder-open text-6xl'></i></p>
+                            </div>
+                        </div>
+                    @endforelse
+
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+{{-- general message modal --}}
+    <div class="fixed items-center justify-center  flex top-0 left-0 mx-auto w-full h-full bg-gray-600 bg-opacity-30 z-50 transition duration-1000 ease-in-out"
+        x-show="openGeneralMessageModal" x-cloak>
+        <div @click.away="openGeneralMessageModal = false"
+            class="bg-white w-[90%] md:w-[60%]  shadow-inner  border rounded-2xl overflow-auto  py-6 px-8 transition-all relative duration-700">
+            <div class=" h-full ">
+
+                <div class="flex justify-between items-center">
+                    <h5 class="font-bold text-xl">All Campaign</h5>
+                    <button @click="openGeneralMessageModal = false"><i class="bx bx-x text-xl font-bold"></i></button>
+                </div>
+
+                <ul class="my-4 space-y-3 h-[400px] overflow-y-auto">
+                    @forelse ($campaigns as $campaign)
+                        <li @click.away="openDrawer = false" class="border-2 rounded-lg" x-data="{ openDrawer: false, emailType: 'default' }">
+                            <div for="{{ $campaign->id }}" @click="openDrawer = !openDrawer"
+                                wire:click="setCampaign('{{ $campaign->uuid }}')"
+                                class=" cursor-pointer flex items-center p-3 text-base font-bold text-gray-900 rounded-lg bg-gray-200 hover:bg-gray-100 campaign  justify-between">
+                                <div class="flex items-center">
+                                    <i class='bx bx-task text-xl'></i>
+                                    <span
+                                        class="flex-1 ms-3 whitespace-nowrap capitalize">{{ $campaign->title }}</span>
+                                </div>
+                                <span><i class='bx '
+                                        :class="openDrawer ? 'bxs-chevron-up' : 'bxs-chevron-down'"></i></span>
+                            </div>
+                            <div class=" p-4" x-show="openDrawer" x-cloak>
+
+                                
+
+                                <div class="mx-auto w-[90%]" >
+                                    <p class="text-xl font-medium mb-3">Customize Your Email Template</p>
+                                    <div wire:ignore class=" bg-gray-100  ">
+                                        {{-- <x-editor :id="$campaign->id" :customEmailBody="'hello this is the body'" /> --}}
+                                            <x-editor :id="$campaign->id .'_all'" :customEmailBody="$customEmailBody" />
+                                    </div>
+                                    <div class="flex justify-between space-x-3 items-center bg-white p-3 ">
+                                        <div class="">
+                                           
+                                        </div>
+
+                                        <button wire:click="sendInviteToAll()"
+                                            wire:loading.class="opacity-70"
+                                            wire:loading.target="sendInviteToAll"
+                                            wire:loading.attr="disabled"
+                                            class=" bg-[#0F1523]  rounded-lg text-white px-5 py-2 flex items-center space-x-2">
+                                            <i class='bx bx-mail-send'></i>
+                                            <span wire:loading.target="sendInviteToAll"
+                                                wire:loading.remove>Send mail</span>
+                                            <span wire:loading.target="sendInviteToAll"
                                                 wire:loading>Send...</span>
                                         </button>
                                     </div>
@@ -487,7 +568,7 @@
                             User Profile
                         </h3>
                         <div>
-                            <button wire:click="evaluateInfluncerWithAI(influencer_id,influencer_content)">
+                            <button wire:click="evaluateinfluencerWithAI(influencer_id,influencer_content)">
                                 Evaluate with AI
                             </button>
                         </div>
@@ -497,7 +578,7 @@
                     </p>
                 </div>
                 <div class="border-t border-gray-200 px-4 py-5 sm:p-0 w-full" wire:loading
-                    wire:target="evaluateInfluncerWithAI">
+                    wire:target="evaluateinfluencerWithAI">
                     <div class='flex space-x-2 justify-center items-center bg-white h-32'>
                         <span class='sr-only'>Loading...</span>
                         <div class='h-8 w-8 bg-gray-900 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
@@ -636,8 +717,7 @@
         // });
         document.addEventListener('DOMContentLoaded', function() {
             Livewire.on('email-sent', (data) => {
-
-                console.log(data.status);
+                // console.log(data.status);
                 if (data.status == 'success') {
                     Toastify({
                         text: `${data.msg}`,
@@ -663,6 +743,17 @@
                 const campaignId = data.id;
                 var summernote = $('#summernote-' + campaignId);
                 summernote.summernote('code', content);
+                
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            Livewire.on('addAllToEditor', function(data) {
+                const content = data.content;
+                const campaignId = data.id;
+                var summernote = $('#summernote-' + campaignId + '_all');
+                summernote.summernote('code', content);
+                console.log(summernote);
+                
             });
         });
     </script>

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\InfluncersGroup;
+use App\Models\influencersGroup;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class InfluncersGroupController extends Controller
+class influencersGroupController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,7 +35,7 @@ class InfluncersGroupController extends Controller
         ]);
 
         $user = auth()->user();
-        $user->influncersGroups()->create($validateData);
+        $user->influencersGroups()->create($validateData);
 
         return back()->with('success', 'Created Successfully');
         
@@ -44,7 +44,7 @@ class InfluncersGroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(InfluncersGroup $group)
+    public function show(influencersGroup $group)
     {
         $group->load('influencers');
         return view('group.show', compact('group'));
@@ -56,7 +56,7 @@ class InfluncersGroupController extends Controller
             'name' => 'required|string',
         ]);
 
-        $group = InfluncersGroup::where('id', $request->input('id'))->firstOrFail();
+        $group = influencersGroup::where('id', $request->input('id'))->firstOrFail();
         $group->name = $request->input('name');
         $group->update();
 
@@ -66,7 +66,7 @@ class InfluncersGroupController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(InfluncersGroup $influncersGroup)
+    public function edit(influencersGroup $influencersGroup)
     {
         //
     }
@@ -74,7 +74,7 @@ class InfluncersGroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, InfluncersGroup $influncersGroup)
+    public function update(Request $request, influencersGroup $influencersGroup)
     {
         //
     }
@@ -82,7 +82,7 @@ class InfluncersGroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(InfluncersGroup $group)
+    public function destroy(influencersGroup $group)
     {
         $group->delete();
         return back()->with('success', 'Deleted Successfully');

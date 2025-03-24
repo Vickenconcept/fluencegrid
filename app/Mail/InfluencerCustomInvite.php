@@ -9,17 +9,19 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class InfluencerCustomInvite extends Mailable
+class InfluencerCustomInvite extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     public $emailBody;
+    public $invitationLink;
     /**
      * Create a new message instance.
      */
-    public function __construct($emailBody)
+    public function __construct($emailBody, $invitationLink = null)
     {
         $this->emailBody = $emailBody;
+        $this->invitationLink = $invitationLink;
     }
 
 
@@ -29,6 +31,7 @@ class InfluencerCustomInvite extends Mailable
             ->view('emails.influencer-custom-invite')
             ->with([
                 'emailBody' => $this->emailBody,
+                'invitationLink' => $this->invitationLink,
             ]);
     }
 

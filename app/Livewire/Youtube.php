@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Influencer;
-use App\Models\InfluncersGroup;
+use App\Models\influencersGroup;
 use App\Services\InfluencerService;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
@@ -41,7 +41,7 @@ class Youtube extends Component
         $this->details =  Cache::get("{$this->platform}_details" . auth()->id()) ?? [];
 
         // dd($this->details);
-        $this->groups = InfluncersGroup::latest()->get();
+        $this->groups = influencersGroup::latest()->get();
     }
 
     public function getInfluencer()
@@ -96,9 +96,9 @@ class Youtube extends Component
         ]);
 
         $user = auth()->user();
-        $user->influncersGroups()->create($validateData);
+        $user->influencersGroups()->create($validateData);
 
-        $this->groups = InfluncersGroup::latest()->get();
+        $this->groups = influencersGroup::latest()->get();
         $this->name = '';
         $this->description = '';
     }
@@ -118,8 +118,8 @@ class Youtube extends Component
 
         foreach ($validatedData['selectedGroups'] as $groupId) {
             Influencer::create([
-                'influncers_group_id' => $groupId,
-                'influnencer_id' => $validatedData['selectInfluencer']['youtubeId'],
+                'influencers_group_id' => $groupId,
+                'influencer_id' => $validatedData['selectInfluencer']['youtubeId'],
                 'platform' => 'youtube',
                 'content' => json_encode($validatedData['selectInfluencer']),
             ]);

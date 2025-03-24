@@ -22,14 +22,11 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
 
-    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
-    {{-- <link rel="stylesheet" href="{{ asset('build/assets/app-CPajs8vw.css') }}"> --}}
-    <link rel="stylesheet" href="{{ asset('build/assets/app-Dbbx3F5k.css') }}">
-    <link rel="stylesheet" href="{{ asset('build/assets/app-CE5Kpj__.css') }}">
-    {{-- <script src="{{ asset('build/assets/app-CB21gC7Z.js') }}"></script> --}}
-    {{--<link rel="stylesheet" href="{{ asset('build/assets/drivers-DB0Q8XAf.css') }}">
-    <script src="{{ asset('build/assets/drivers-80L94_2i.js') }}"></script>--}}
+    {{-- <link rel="stylesheet" href="{{ asset('build/assets/app-Dbbx3F5k.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/assets/app-CE5Kpj__.css') }}"> --}}
+
 
 
     @yield('styles')

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Conversation;
 use App\Models\Reseller;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -17,9 +18,14 @@ class ResponseTable extends Component
     #[On('delete-response')]
     public function deletResponse($id)
     {
-        $response = DB::table('campaign_influencer')->where('id', $id)->first();
+        $response = DB::table('campaign_influencer')->where('id', (int)$id)->first();
         if ($response) {
-            DB::table('campaign_influencer')->where('id', $id)->delete();
+            DB::table('campaign_influencer')->where('id', (int)$id)->delete();
+            $conversation = Conversation::where('campaign_id', $response->campaign_id)
+                ->where('influencer_id', $response->influencer_id)
+                ->first();
+
+            $conversation->delete();
         } else {
             session()->flash('error', 'Response not found.');
         }
@@ -31,10 +37,18 @@ class ResponseTable extends Component
     {
 
         // $responses = DB::table('campaign_influencer')->whereNotNull('task_status');
+        // $responses = DB::table('campaign_influencer')
+        // ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
+        // ->whereNotNull('campaign_influencer.task_status')
+        // ->where('campaigns.user_id', auth()->id());
+
         $responses = DB::table('campaign_influencer')
-        ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
-        ->whereNotNull('campaign_influencer.task_status')
-        ->where('campaigns.user_id', auth()->id());
+            ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
+            ->whereNotNull('campaign_influencer.task_status')
+            ->where('campaigns.user_id', auth()->id())
+            ->select('campaign_influencer.*');
+
+
 
 
         if ($this->status === 'declined') {

@@ -26,7 +26,7 @@
                         Email
                     </th>
                     <th scope="col" class="px-6 py-3 bg-gray-50">
-                        Campaign
+                        Contact
                     </th>
                     <th scope="col" class="px-6 py-3 bg-gray-100 ">
                         Status
@@ -40,7 +40,10 @@
                 @forelse ($responses as $response)
                     @php
                         $influencer = \App\Models\Influencer::find($response->influencer_id);
-                        $conversation = \App\Models\Conversation::where('influencer_id' , $response->influencer_id)->first();
+                        $conversation = \App\Models\Conversation::where(
+                            'influencer_id',
+                            $response->influencer_id,
+                        )->first();
                         $content = json_decode($influencer->content);
                         $emails = $influencer->emails;
                         $emailsList = implode(', ', json_decode($emails, true));
@@ -64,9 +67,16 @@
                             {{ $emailsList }}
                         </td>
                         <td class="px-6 py-4 bg-gray-50">
-                            {{ 'oo' }}
+
+                            @if ($conversation->status == 'pending')
+                                <span
+                                    class="px-6 rounded-2xl text-sm capitalize py-1 border border-gray-700 bg-gray-200 text-gray-700">{{ $conversation->status }}</span>
+                            @elseif ($conversation->status == 'deal')
+                                <span
+                                    class="px-6 rounded-2xl text-sm capitalize py-1 border border-green-700 bg-green-100 text-gray-700">{{ $conversation->status }}</span>
+                            @endif
                         </td>
-                        <td class="px-6 py-4 bg-gray-100 ">
+                        <td class="px-6 py-4 bg-gray-100 capitalize font-semibold">
                             {{ $response->task_status }}
                         </td>
                         <td class="px-6 py-4 bg-gray-50">
@@ -74,7 +84,8 @@
                                 <i class="bx bx-trash font-medium text-red-500 hover:text-red-700 mr-1 text-lg"></i>
                             </button>
                             @if ($response->task_status !== 'declined')
-                                <a href="{{ route('conversation.owner', ['uuid' => optional($conversation)->uuid]) }}" class="" title="message">
+                                <a href="{{ route('conversation.owner', ['uuid' => optional($conversation)->uuid]) }}"
+                                    class="" title="message">
                                     <i
                                         class="bx bx-message font-medium text-white rounded-full px-2 py-1 bg-blue-500  mr-1 text-lg"></i>
                                 </a>
@@ -84,7 +95,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td class="bg-orange-100 text-orange-500 py-10 text-center rounded col-span-4" colspan="4">No
+                        <td class="bg-orange-100 text-orange-500 py-10 text-center rounded " colspan="5">No
                             Data
                             Yet.</td>
                     </tr>

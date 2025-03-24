@@ -24,10 +24,11 @@ class AuthController extends Controller
         $requestData['is_admin'] = 1;
 
         $user = User::create($requestData);
-        // Mail::to($requestData['email'])->send(new WelcomeMail($requestData['password']));
+        Mail::to($requestData['email'])->send(new WelcomeMail($requestData['password']));
 
 
-        return redirect('login');
+        return redirect()->to('login');
+        // return redirect('login');
     }
 
     public function login(CreateUserRequest $request)

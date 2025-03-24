@@ -5,12 +5,13 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CampaignInquiryController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\InfluencerController;
-use App\Http\Controllers\InfluncersGroupController;
+use App\Http\Controllers\influencersGroupController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResellerController;
+use App\Models\Conversation;
 use App\Models\Influencer;
 use App\Services\FacebookInfluencerService;
 use App\Services\InfluencerService;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,11 +47,35 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-Route::get('campaigns/share/{campaign}', [CampaignController::class, 'share'])->name('campaign.share');
-Route::get('campaigns/view', [CampaignController::class, 'viewCampaign'])->name('campaign.view');
-Route::post('campaigns/respond', [CampaignController::class, 'recordResponse'])->name('campaign.respond');
-
 Route::get('conversation/{uuid}/influencer', [ConversationController::class, 'influencer_chat'])->name('conversation.influencer');
+
+
+Route::controller(CampaignController::class)->name('campaign.')->group(function () {
+    Route::get('campaigns/share/{campaign}',  'share')->name('share');
+    Route::get('campaigns/view',  'viewCampaign')->name('view');
+    Route::post('campaigns/respond/post',  'recordResponse')->name('respond');
+    Route::get('/short/{code}',  'short_code_url')->name('short_code_url');
+});
+
+
+
+
+// Route::get('/short/{code}', function ($code, Request $request) {
+//     $shortenedUrl = Conversation::where('short_code', $code)->firstOrFail();
+
+//     $ip = $request->ip();
+//     $trackedIps = $shortenedUrl->ip_addresses ?? [];
+//     if (!in_array($ip, $trackedIps)) {
+//         $trackedIps[] = $ip;
+//     }
+
+//     $shortenedUrl->update([
+//         'clicks' => $shortenedUrl->clicks + 1,
+//         'ip_addresses' => $trackedIps,
+//     ]);
+
+//     return redirect()->to($shortenedUrl->original_url);
+// });
 
 
 
@@ -62,7 +88,6 @@ Route::middleware(['auth'])->group(function () {
     })->name('home');
 
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-
     // Mark all notifications as read
     Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 
@@ -77,10 +102,15 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('influencers/{influencer}', [InfluencerController::class, 'destroy'])->name('influencer.delete');
     Route::resource('influencers', InfluencerController::class);
-    Route::post('groups/update-name', [InfluncersGroupController::class, 'changeName'])->name('changeGroupName');
-    Route::resource('groups', InfluncersGroupController::class);
-    Route::post('campaign/update-name', [CampaignController::class, 'changeName'])->name('changeCampaignName');
-    Route::get('campaign/response', [CampaignController::class, 'campaign_response'])->name('campaigns.response');
+    
+    Route::post('groups/update-name', [influencersGroupController::class, 'changeName'])->name('changeGroupName');
+    Route::resource('groups', influencersGroupController::class);
+
+    Route::controller(CampaignController::class)->group(function () {
+        Route::post('campaign/update-name', 'changeName')->name('changeCampaignName');
+        Route::get('response/campaign', 'campaign_response')->name('campaigns.response');
+     });
+
     Route::resource('campaigns', CampaignController::class);
     Route::resource('reseller', ResellerController::class);
     Route::get('conversation/{uuid}/owner', [ConversationController::class, 'owner_chat'])->name('conversation.owner');
@@ -116,8 +146,8 @@ Route::get('test', function () {
 
     foreach ($validatedData['selectedGroups'] as $groupId) {
         Influencer::create([
-            'influncers_group_id' => $groupId,
-            'influnencer_id' => $validatedData['selectInfluencer']['instagramId'],
+            'influencers_group_id' => $groupId,
+            'influencer_id' => $validatedData['selectInfluencer']['instagramId'],
             'platform' => 'instagram',
             'content' => json_encode($validatedData['selectInfluencer']),
         ]);

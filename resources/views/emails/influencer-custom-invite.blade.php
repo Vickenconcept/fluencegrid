@@ -37,7 +37,15 @@
 
     <section
         style="width: 70%; margin-right: auto; margin-left: auto; border: 1px solid #f9f9f9; border-radius: 12px; padding: 30px 20px; background-color: white;">
-         {!! $emailBody !!}
+        {!! $emailBody !!}
+
+        @if (!empty($invitationLink))
+            <p>
+                Click the link below to view your invitation:
+                <br>
+                <a href="{{ $invitationLink }}" target="_blank">{{ $invitationLink }}</a>
+            </p>
+        @endif
     </section>
 </body>
 

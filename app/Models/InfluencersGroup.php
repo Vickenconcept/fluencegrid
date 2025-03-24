@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\DataAccessScope;
 use Illuminate\Database\Eloquent\Model;
 
-class InfluncersGroup extends Model
+class influencersGroup extends Model
 {
     protected $guarded = [];
 
@@ -13,7 +13,7 @@ class InfluncersGroup extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class); 
+        return $this->belongsTo(User::class);
     }
 
     public function latestInfluencer()
@@ -29,6 +29,12 @@ class InfluncersGroup extends Model
         return $this->hasMany(Influencer::class);
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+
 
     protected static function boot()
     {
@@ -40,5 +46,4 @@ class InfluncersGroup extends Model
             $group->influencers()->delete();
         });
     }
-
 }

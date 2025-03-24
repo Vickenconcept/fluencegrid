@@ -18,6 +18,12 @@ return new class extends Migration
             $table->integer('influencer_id');
             $table->integer('campaign_id');
             $table->string('status');
+            $table->string('original_url')->nullable();
+            $table->string('short_code')->nullable();
+            $table->integer('clicks')->default(0);
+            $table->json('ip_addresses')->nullable();
+            $table->integer('amount')->default(0);
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

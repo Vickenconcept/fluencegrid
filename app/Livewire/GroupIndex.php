@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\InfluncersGroup;
+use App\Models\influencersGroup;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,7 +15,7 @@ class GroupIndex extends Component
 
     public function render()
     {
-        $groups = InfluncersGroup::with('latestInfluencer');  
+        $groups = influencersGroup::with('latestInfluencer');  
 
         if ($this->search) {
             $groups->where("name", 'like', '%' . $this->search . '%');

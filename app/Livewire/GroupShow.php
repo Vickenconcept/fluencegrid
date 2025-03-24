@@ -6,7 +6,7 @@ use App\Mail\InfluencerCampaignInvite;
 use App\Mail\InfluencerCustomInvite;
 use App\Models\Campaign;
 use App\Models\Influencer;
-use App\Models\InfluncersGroup;
+use App\Models\influencersGroup;
 use App\Services\ChatGptService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
@@ -24,7 +24,7 @@ class GroupShow extends Component
 
     public $selectedInfluencer, $selectedEmail, $influencerName;
     public $selectedCampaignUuid;
-    public $invitationLink;
+    public $invitationLink, $allInvitationLinks;
     public $youtubeId;
 
     public $compensation, $campaignTitle, $acceptanceDeadline;
@@ -48,20 +48,37 @@ class GroupShow extends Component
 
         $influencer = Influencer::find($this->selectedInfluencer);
 
-        $content = json_decode($influencer->content, true);
-        $key = "{$influencer->platform}Name";
-        $this->influencerName = $content[$key];
+        if ($influencer) {
+            # code...
+            $content = json_decode($influencer->content, true);
+            $key = "{$influencer->platform}Name";
+            $this->influencerName = $content[$key];
 
-        $this->compensation = '$' . $this->campaign->budget . ' per post';
-        $this->acceptanceDeadline = $this->campaign->invite_end_date;
-        $this->campaignTitle = $this->campaign->title;
-
-
-        $token = Crypt::encryptString("campaign_id={$this->campaign->id}&influencer_id={$influencer->id}");
-        $this->invitationLink = route('campaign.view', ['token' => $token]);
+            $this->compensation = '$' . $this->campaign->budget . ' per post';
+            $this->acceptanceDeadline = $this->campaign->invite_end_date;
+            $this->campaignTitle = $this->campaign->title;
 
 
-        $this->addToEditor($this->campaign->id);
+            $token = Crypt::encryptString("campaign_id={$this->campaign->id}&influencer_id={$influencer->id}");
+            $this->invitationLink = route('campaign.view', ['token' => $token]);
+            $this->addToEditor($this->campaign->id);
+        } else {
+            $influencers = Influencer::where('influencers_group_id', $this->group->id)->get();
+            $this->compensation = '$' . $this->campaign->budget . ' per post';
+            $this->acceptanceDeadline = $this->campaign->invite_end_date;
+            $this->campaignTitle = $this->campaign->title;
+
+            foreach ($influencers as $influencer) {
+                $token = Crypt::encryptString("campaign_id={$this->campaign->id}&influencer_id={$influencer->id}");
+                $invitationLink = route('campaign.view', ['token' => $token]);
+
+                // Store the unique link per influencer
+                $this->allInvitationLinks[$influencer->id] = $invitationLink;
+            }
+
+            $this->addAllToEditor($this->campaign->id);
+            # code...
+        }
     }
 
 
@@ -219,6 +236,40 @@ class GroupShow extends Component
         $this->dispatch('email-sent', status: 'success',  msg: 'Email set successfully');
         return;
     }
+    // public function sendInviteToAll()
+    // {
+    //     $influencers = Influencer::where('influencers_group_id', $this->group->id)->get();
+
+    //     dd($this->allInvitationLinks);
+
+    //     Mail::to('vicken408@gmail.com')->send(new InfluencerCustomInvite(
+    //         $this->customEmailBody,
+    //     ));
+
+    //     $this->dispatch('email-sent', status: 'success',  msg: 'Email set successfully');
+    //     return;
+    // }
+
+    public function sendInviteToAll()
+    {
+        $influencers = Influencer::where('influencers_group_id', $this->group->id)->get();
+
+        foreach ($influencers as $influencer) {
+            $emails = json_decode($influencer->emails, true); // Decode JSON emails column
+            $invitationLink = $this->allInvitationLinks[$influencer->id] ?? null; // Get the unique link
+
+            if ($invitationLink && is_array($emails)) {
+                foreach ($emails as $email) {
+                    Mail::to('vicken408@gmail.com')->queue(new InfluencerCustomInvite($this->customEmailBody, $invitationLink));
+                    // Mail::to($email)->send(new InfluencerCustomInvite($this->customEmailBody, $invitationLink));
+                }
+            }
+        }
+
+        $this->dispatch('email-sent', status: 'success', msg: 'Emails sent successfully');
+    }
+
+
 
     public function addToEditor($id)
     {
@@ -264,8 +315,45 @@ class GroupShow extends Component
         $this->dispatch('addToEditor',  content: $this->customEmailBody, id: $id);
     }
 
+    public function addAllToEditor($id)
+    {
 
-    public function evaluateInfluncerWithAI(ChatGptService $chatGptService, $influencer_id, $influencers_data)
+        $this->customEmailBody = "<div class='px-3 py-5 bg-gray-100  '>
+                                            <p class='text-xl font-semibold mb-3'>Hi $this->influencerName,</p>
+                                            <p>We’re thrilled to invite you to join an exclusive campaign
+                                                that’s perfectly tailored to your unique influence and
+                                                style. Here’s a quick overview of the campaign:</p>
+                                            <ul class='py-5'>
+                                                <li>
+                                                    <strong style='margin-right: 6px;'>&#10003;</strong>
+                                                    <strong>🌟 Campaign Name:</strong> $this->campaignTitle
+                                                </li>
+                                                <li>
+                                                    <strong style='margin-right: 6px;'>&#10003;</strong>
+                                                    <strong>💰 Compensation:</strong> $this->compensation
+                                                </li>
+                                                <li>
+                                                    <strong style='margin-right: 6px;'>&#10003;</strong>
+                                                    <strong>🗓️ Acceptance Deadline:</strong> $this->acceptanceDeadline
+                                                </li>
+                                            </ul>
+
+                                            <p class='my-4'>We’re excited to work with you and can’t wait to see the
+                                                amazing content you’ll create for this campaign. If you
+                                                have any questions or need more details, don’t hesitate to reach out to
+                                                us.
+                                            </p>
+
+                                            <p style='font-size: 16px; font-family: sans-serif;'>Best regards,<br>
+                                                <strong>" . env('APP_NAME') . " Team</strong>
+                                            </p>
+                                        </div>";
+
+        $this->dispatch('addAllToEditor',  content: $this->customEmailBody, id: $id);
+    }
+
+
+    public function evaluateinfluencerWithAI(ChatGptService $chatGptService, $influencer_id, $influencers_data)
     {
 
         unset($influencers_data['avatar'], $influencers_data['cover']);
