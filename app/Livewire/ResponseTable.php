@@ -13,7 +13,7 @@ use Livewire\Attributes\On;
 class ResponseTable extends Component
 {
     use WithPagination;
-    public $status;
+    public $status, $deal;
 
     #[On('delete-response')]
     public function deletResponse($id)
@@ -33,32 +33,114 @@ class ResponseTable extends Component
         // $response->delete();
     }
 
+    // $responses = DB::table('campaign_influencer')
+    //     ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
+    //     ->whereNotNull('campaign_influencer.task_status')
+    //     ->where('campaigns.user_id', auth()->id())
+    //     ->select('campaign_influencer.*');
+
+
+
+    // public function render()
+    // {
+
+
+
+    //     $responses = DB::table('campaign_influencer')
+    //         ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
+    //         ->whereNotNull('campaign_influencer.task_status')
+    //         ->where('campaigns.user_id', auth()->id())
+    //         ->select('campaign_influencer.*');
+
+
+
+
+    //     if ($this->deal === 'deal') {
+    //         $responses->where('task_status', $this->status);
+    //     } elseif ($this->deal === 'pending') {
+    //         $responses->where('task_status', $this->status);
+    //     } elseif ($this->deal === 'no-deal') {
+    //         // No filtering needed for 'all', just remove the where clause
+    //     }
+
+    //     if ($this->status === 'declined') {
+    //         $responses->where('task_status', $this->status);
+    //     } elseif ($this->status === 'accepted') {
+    //         $responses->where('task_status', $this->status);
+    //     } elseif ($this->status === 'all') {
+    //         // No filtering needed for 'all', just remove the where clause
+    //     }
+
+
+    //     $responses = $responses->paginate(10);
+
+    //     return view('livewire.response-table', compact('responses'));
+    // }
+
+
+    // public function render()
+    // {
+    //     $responses = DB::table('campaign_influencer')
+    //         ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
+    //         ->leftJoin('conversations', function ($join) {
+    //             $join->on('campaign_influencer.campaign_id', '=', 'conversations.campaign_id')
+    //                 ->on('campaign_influencer.influencer_id', '=', 'conversations.influencer_id');
+    //         })
+    //         ->whereNotNull('campaign_influencer.task_status')
+    //         ->where('campaigns.user_id', auth()->id())
+    //         ->select('campaign_influencer.*', 'conversations.status as conversation_status');
+
+    //     // Filter based on the deal type from conversation status
+    //     if ($this->deal === 'deal') {
+    //         $responses->where('conversations.status', 'deal')
+    //             ->where('campaign_influencer.task_status', $this->status);
+    //     } elseif ($this->deal === 'pending') {
+    //         $responses->where('conversations.status', 'pending')
+    //             ->where('campaign_influencer.task_status', $this->status);
+    //     } elseif ($this->deal === 'no-deal') {
+    //         $responses->where('conversations.status', 'no-deal');
+    //     }
+
+    //     // Filter based on task status
+    //     if (in_array($this->status, ['declined', 'accepted'])) {
+    //         $responses->where('campaign_influencer.task_status', $this->status);
+    //     }
+
+    //     // Paginate results
+    //     $responses = $responses->paginate(10);
+
+    //     return view('livewire.response-table', compact('responses'));
+    // }
+
+
     public function render()
     {
-
-        // $responses = DB::table('campaign_influencer')->whereNotNull('task_status');
-        // $responses = DB::table('campaign_influencer')
-        // ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
-        // ->whereNotNull('campaign_influencer.task_status')
-        // ->where('campaigns.user_id', auth()->id());
-
         $responses = DB::table('campaign_influencer')
             ->join('campaigns', 'campaign_influencer.campaign_id', '=', 'campaigns.id')
+            ->leftJoin('conversations', function ($join) {
+                $join->on('campaign_influencer.campaign_id', '=', 'conversations.campaign_id')
+                    ->on('campaign_influencer.influencer_id', '=', 'conversations.influencer_id');
+            })
             ->whereNotNull('campaign_influencer.task_status')
             ->where('campaigns.user_id', auth()->id())
-            ->select('campaign_influencer.*');
+            ->select('campaign_influencer.*', 'conversations.status as conversation_status');
 
 
+        if (!empty($this->deal) && in_array($this->deal, ['deal', 'pending'])) {
+            $responses->where('conversations.status', $this->deal);
+        } elseif ($this->deal === 'no-deal') {
+            $responses->whereNull('conversations.status'); // Show only items with no conversation
+        } elseif ($this->deal === 'all') {
+            // Do nothing to reset the table (show all records)
+        }
+        
 
 
-        if ($this->status === 'declined') {
-            $responses->where('task_status', $this->status);
-        } elseif ($this->status === 'accepted') {
-            $responses->where('task_status', $this->status);
-        } elseif ($this->status === 'all') {
-            // No filtering needed for 'all', just remove the where clause
+        if (in_array($this->status, ['declined', 'accepted'])) {
+            $responses->where('campaign_influencer.task_status', $this->status);
         }
 
+        $responses->orderBy('campaign_influencer.created_at', 'desc');
 
         $responses = $responses->paginate(10);
 

@@ -109,7 +109,7 @@
                 <div class="flex items-center ms-3">
                     <div class="flex items-center space-x-2"  aria-expanded="false" data-dropdown-toggle="dropdown-user" id="profile_avatar">
                         <button type="button" id="profile_avatar"
-                            class="flex text-sm bg-gray-800 rounded-md focus:ring-4 focus:ring-gray-300 ">
+                            class="flex text-sm bg-gray-200 rounded-md focus:ring-4 focus:ring-gray-300 ">
                             <span class="sr-only">Open user menu</span>
                             <img class="w-10 h-10 rounded-md"
                                 src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">

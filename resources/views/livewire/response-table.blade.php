@@ -6,7 +6,13 @@
         </div>
 
         <div class="flex flex-col md:items-center md:flex-row px-3   md:space-y-0 md:space-x-2  w-1/3 ">
-            <select id="countries1" wire:model.live="status" class="form-control ">
+            <select wire:model.live="deal" class="form-control ">
+                <option value="deal">Deal</option>
+                <option value="pending">Pending</option>
+                <option value="no-deal">No deal</option>
+                <option value="all">All</option>
+            </select>
+            <select wire:model.live="status" class="form-control ">
                 <option value="all">All</option>
                 <option value="accepted">Accepted</option>
                 <option value="declined">Declined</option>
@@ -25,8 +31,8 @@
                     <th scope="col" class="px-6 py-3 bg-gray-100">
                         Email
                     </th>
-                    <th scope="col" class="px-6 py-3 bg-gray-50">
-                        Contact
+                    <th scope="col" class="px-6 py-3 bg-gray-50 text-center">
+                        Contract
                     </th>
                     <th scope="col" class="px-6 py-3 bg-gray-100 ">
                         Status
@@ -40,10 +46,17 @@
                 @forelse ($responses as $response)
                     @php
                         $influencer = \App\Models\Influencer::find($response->influencer_id);
-                        $conversation = \App\Models\Conversation::where(
-                            'influencer_id',
-                            $response->influencer_id,
-                        )->first();
+
+                        $conversations = \App\Models\Conversation::where('influencer_id', $response->influencer_id)
+                            ->where('campaign_id', $response->campaign_id)
+                            ->get();
+
+                        $campaign = \App\Models\Campaign::findorFail($response->campaign_id);
+
+                        $today = now();
+                        $startDate = \Carbon\Carbon::parse($campaign->start_date);
+                        $endDate = \Carbon\Carbon::parse($campaign->end_date);
+
                         $content = json_decode($influencer->content);
                         $emails = $influencer->emails;
                         $emailsList = implode(', ', json_decode($emails, true));
@@ -66,29 +79,101 @@
                         <td class="px-6 py-4 bg-gray-100">
                             {{ $emailsList }}
                         </td>
-                        <td class="px-6 py-4 bg-gray-50">
+                        <td class="px-6 py-4 bg-gray-50 text-center">
 
-                            @if ($conversation->status == 'pending')
+                            @if ($response->task_status == 'accepted')
+                                @foreach ($conversations as $conversation)
+                                    @if ($conversation->status == 'pending')
+                                        <span class="relative flex justify-center">
+                                            <span
+                                                class="px-6 rounded-2xl text-sm capitalize py-1 border border-gray-700 bg-gray-200 text-gray-700">{{ $conversation->status }}</span>
+
+                                            @if ($today->between($startDate, $endDate))
+                                                <span
+                                                    class="relative inline-flex size-3 rounded-full bg-green-500"></span>
+                                            @elseif ($today->gt($endDate))
+                                                <span
+                                                    class="relative inline-flex size-3 rounded-full bg-red-500"></span>
+                                            @endif
+                                        </span>
+                                    @elseif ($conversation->status == 'deal')
+                                        <span class="relative flex justify-center">
+                                            <span
+                                                class="px-6 rounded-2xl text-sm capitalize py-1 border border-green-700 bg-green-100 text-gray-700">{{ $conversation->status }}</span>
+
+
+                                            @if ($today->between($startDate, $endDate))
+                                                <span
+                                                    class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-50"></span>
+                                                <span
+                                                    class="relative inline-flex size-3 rounded-full bg-green-500"></span>
+                                            @elseif ($today->gt($endDate))
+                                                <span
+                                                    class="relative inline-flex size-3 rounded-full bg-red-500"></span>
+                                            @endif
+                                        </span>
+                                    @endif
+                                @endforeach
+                            @else
                                 <span
-                                    class="px-6 rounded-2xl text-sm capitalize py-1 border border-gray-700 bg-gray-200 text-gray-700">{{ $conversation->status }}</span>
-                            @elseif ($conversation->status == 'deal')
-                                <span
-                                    class="px-6 rounded-2xl text-sm capitalize py-1 border border-green-700 bg-green-100 text-gray-700">{{ $conversation->status }}</span>
+                                    class="px-6 rounded-2xl text-sm capitalize py-1 border border-red-700 bg-red-100 text-gray-700">{{ 'no deal' }}</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 bg-gray-100 capitalize font-semibold">
                             {{ $response->task_status }}
                         </td>
                         <td class="px-6 py-4 bg-gray-50">
-                            <button type="button" class="delete-btn" data-item-id="{{ $response->id }}">
-                                <i class="bx bx-trash font-medium text-red-500 hover:text-red-700 mr-1 text-lg"></i>
-                            </button>
-                            @if ($response->task_status !== 'declined')
-                                <a href="{{ route('conversation.owner', ['uuid' => optional($conversation)->uuid]) }}"
-                                    class="" title="message">
+                            @if ($response->task_status == 'accepted')
+                                @if ($conversation->status == 'deal')
+                                    @if ($today->between($startDate, $endDate))
+                                        <button type="button" disabled title="Cannot Delete">
+                                            <i
+                                                class="bx bx-trash font-medium shadow-md hover:shadow-lg rounded-full px-2 py-1 text-white bg-red-500/70 hover:bg-red-600/70 mr-1 text-lg"></i>
+                                        </button>
+                                    @elseif ($today->gt($endDate))
+                                        <button type="button" class="delete-btn" data-item-id="{{ $response->id }}"
+                                            title="Delete Conversation">
+                                            <i
+                                                class="bx bx-trash font-medium shadow-md hover:shadow-lg rounded-full px-2 py-1 text-white bg-red-500 hover:bg-red-600 mr-1 text-lg"></i>
+                                        </button>
+                                    @else
+                                        <button type="button" disabled title="Cannot Delete">
+                                            <i
+                                                class="bx bx-trash font-medium shadow-md hover:shadow-lg rounded-full px-2 py-1 text-white bg-red-500/70 hover:bg-red-600/70 mr-1 text-lg"></i>
+                                        </button>
+                                    @endif
+                                @else
+                                    <button type="button" class="delete-btn" data-item-id="{{ $response->id }}"
+                                        title="Delete Conversation">
+                                        <i
+                                            class="bx bx-trash font-medium shadow-md hover:shadow-lg rounded-full px-2 py-1 text-white bg-red-500 hover:bg-red-600 mr-1 text-lg"></i>
+                                    </button>
+                                @endif
+                            @else
+                                <button type="button" class="delete-btn" data-item-id="{{ $response->id }}"
+                                    title="Delete Conversation">
                                     <i
-                                        class="bx bx-message font-medium text-white rounded-full px-2 py-1 bg-blue-500  mr-1 text-lg"></i>
-                                </a>
+                                        class="bx bx-trash font-medium shadow-md hover:shadow-lg rounded-full px-2 py-1 text-white bg-red-500 hover:bg-red-600 mr-1 text-lg"></i>
+                                </button>
+                            @endif
+
+                            {{-- @if ($conversation->status != 'deal' && $response->task_status == 'declined')
+                                <button type="button" class="delete-btn" data-item-id="{{ $response->id }}">
+                                    <i class="bx bx-trash font-medium text-red-500 hover:text-red-700 mr-1 text-lg"></i>
+                                </button>
+                                delete
+                            @endif --}}
+
+
+
+                            @if ($response->task_status !== 'declined')
+                                @foreach ($conversations as $conversation)
+                                    <a href="{{ route('conversation.owner', ['uuid' => optional($conversation)->uuid]) }}"
+                                        class="" title="message">
+                                        <i
+                                            class="bx bx-message font-medium text-white shadow-md hover:shadow-lg rounded-full px-2 py-1 bg-blue-500  mr-1 text-lg"></i>
+                                    </a>
+                                @endforeach
                             @endif
 
                         </td>

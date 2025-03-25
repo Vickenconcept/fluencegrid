@@ -9,7 +9,6 @@
 
 <textarea id="summernote-{{ $id }}" class="summernote-instance w-full" wire:model.live="customEmailBody"></textarea>
 
-<button wire:click="submit()">Submit</button>
 
 <script>
     jQuery(document).ready(function() {

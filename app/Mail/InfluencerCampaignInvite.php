@@ -24,7 +24,7 @@ class InfluencerCampaignInvite extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($influencerName, $campaignTitle, $brandName = null , $targetAudience = null, $compensation = null, $acceptanceDeadline, $campaignLink)
+    public function __construct($influencerName, $campaignTitle, $brandName = null, $targetAudience = null, $compensation = null, $acceptanceDeadline, $campaignLink)
     {
         $this->influencerName = $influencerName;
         $this->campaignTitle = $campaignTitle;
@@ -50,34 +50,4 @@ class InfluencerCampaignInvite extends Mailable
                 'campaignLink' => $this->campaignLink,
             ]);
     }
-
-    /**
-     * Get the message envelope.
-     */
-    // public function envelope(): Envelope
-    // {
-    //     return new Envelope(
-    //         subject: 'Influencer Campaign Invite',
-    //     );
-    // }
-
-    // /**
-    //  * Get the message content definition.
-    //  */
-    // public function content(): Content
-    // {
-    //     return new Content(
-    //         view: 'view.name',
-    //     );
-    // }
-
-    // /**
-    //  * Get the attachments for the message.
-    //  *
-    //  * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-    //  */
-    // public function attachments(): array
-    // {
-    //     return [];
-    // }
 }

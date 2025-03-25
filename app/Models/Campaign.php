@@ -9,12 +9,6 @@ class Campaign extends Model
 {
 
     protected $guarded = [
-        // 'title',
-        // 'description',
-        // 'task',
-        // 'start_date',
-        // 'end_date',
-        // 'status'
     ];
 
     public function influencers()

@@ -24,6 +24,8 @@ return new class extends Migration
             $table->json('ip_addresses')->nullable();
             $table->integer('amount')->default(0);
             $table->text('description')->nullable();
+            $table->integer('no_of_click')->default(0);
+            $table->text('others')->nullable();
             $table->timestamps();
         });
     }

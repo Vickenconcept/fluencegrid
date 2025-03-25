@@ -396,17 +396,11 @@
                                 
 
                                 <div class="mx-auto w-[90%]" >
-                                    <p class="text-xl font-medium mb-3">Customize Your Email Template</p>
-                                    <div wire:ignore class=" bg-gray-100  ">
-                                        {{-- <x-editor :id="$campaign->id" :customEmailBody="'hello this is the body'" /> --}}
-                                            <x-editor :id="$campaign->id .'_all'" :customEmailBody="$customEmailBody" />
-                                    </div>
-                                    <div class="flex justify-between space-x-3 items-center bg-white p-3 ">
-                                        <div class="">
-                                           
-                                        </div>
+                                    <div class="flex items-center justify-between pb-5">
+                                        <p class="text-xl font-medium mb-3">Customize Your Email Template</p>
 
-                                        <button wire:click="sendInviteToAll()"
+                                        <div>
+                                            <button wire:click="sendInviteToAll()"
                                             wire:loading.class="opacity-70"
                                             wire:loading.target="sendInviteToAll"
                                             wire:loading.attr="disabled"
@@ -417,7 +411,13 @@
                                             <span wire:loading.target="sendInviteToAll"
                                                 wire:loading>Send...</span>
                                         </button>
+                                        </div>
                                     </div>
+                                    <div wire:ignore class=" bg-gray-100  ">
+                                        {{-- <x-editor :id="$campaign->id" :customEmailBody="'hello this is the body'" /> --}}
+                                            <x-editor :id="$campaign->id .'_all'" :customEmailBody="$customEmailBody" />
+                                    </div>
+                                   
                                 </div>
 
 
@@ -530,23 +530,7 @@
                         <h2 class="text-xl font-semibold text-indigo-800  mb-4">Contact
                             Information</h2>
                         <ul class="space-y-2 text-gray-700 ">
-                            {{-- <li class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-800 "
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path
-                                            d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                    </svg>
-                                    john.doe@example.com
-                                </li>
-                                <li class="flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-800 "
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path
-                                            d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                    </svg>
-                                    +1 (555) 123-4567
-                                </li> --}}
+                           
                             <li class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-800 "
                                     viewBox="0 0 20 20" fill="currentColor">
@@ -568,8 +552,9 @@
                             User Profile
                         </h3>
                         <div>
-                            <button wire:click="evaluateinfluencerWithAI(influencer_id,influencer_content)">
-                                Evaluate with AI
+                            <button class="btn" wire:click="evaluateinfluencerWithAI(influencer_id,influencer_content)">
+                                <i class='bx bx-bot'></i>
+                                <span>Evaluate with AI</span>
                             </button>
                         </div>
                     </div>
@@ -626,7 +611,7 @@
                     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                         @isset($evaluation['video_or_post'])
                             <table class="w-full text-sm text-left rtl:text-right text-gray-500 ">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 ">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
                                     <tr>
                                         <th scope="col" class="px-16 py-3">
                                             <span class="sr-only">Image</span>
@@ -642,7 +627,7 @@
                                 <tbody>
                                     @foreach ($evaluation['video_or_post'] as $key => $post)
                                         <tr
-                                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                            class="bg-white border-b  hover:bg-gray-50 ">
                                             <td class="p-4">
                                                 @isset($post['url'])
                                                     <a href="{{ $post['url'] }}" target="_blank">
@@ -654,12 +639,12 @@
                                                     {{-- {{ $post['url'] }} --}}
                                                 @endisset
                                             </td>
-                                            <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                                            <td class="px-6 py-4 font-semibold text-gray-900 ">
                                                 @isset($post['likes'])
                                                     {{ $post['likes'] }}
                                                 @endisset
                                             </td>
-                                            <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                                            <td class="px-6 py-4 font-semibold text-gray-900 ">
                                                 @isset($post['views'])
                                                     {{ $post['views'] }}
                                                 @endisset

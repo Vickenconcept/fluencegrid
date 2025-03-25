@@ -1,53 +1,73 @@
 <!-- component -->
 <div class="flex h-full antialiased text-gray-800" x-data="{ openModal: false, openContract: false, openCancle: false }">
     <div class="flex flex-row h-full w-full overflow-x-hidden">
-
+        @php
+            $today = now();
+        @endphp
 
         <div class="flex flex-col flex-auto h-full p-6 ">
             <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4 ">
-                <div class="p-3 bg-gray-100 border-b-2 border-slate-400 flex items-center space-x-2">
-                    @auth
-                        @if ($deal != 'deal')
-                            <div>
-                                <button @click="openModal = true" class="btn">
-                                    create Contract
-                                </button>
-                            </div>
-                        @else
-                            <div>
-                                <button @click="openModal = true" class="btn">
-                                    Edit Contract
-                                </button>
-                            </div>
-                            <div>
-                                <button @click="openCancle = true" class="btn-danger">
-                                    Cancle Contract
-                                </button>
-                            </div>
-                        @endif
+                <div
+                    class="p-3 bg-gray-100 border-b-2 border-slate-400 flex flex-wrap items-center space-x-0 md:space-y-0 md:space-x-2">
+                    @if (!$today->between($startDate, $endDate))
+                        @if (!$today->gt($endDate))
+                            @auth
+                                @if ($deal != 'deal')
+                                    <div>
+                                        <button @click="openModal = true" class="btn">
+                                            create Contract
+                                        </button>
+                                    </div>
+                                @else
+                                    <div>
+                                        <button @click="openModal = true" class="btn">
+                                            Edit Contract
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button @click="openCancle = true" class="btn-danger">
+                                            Cancle Contract
+                                        </button>
+                                    </div>
+                                @endif
 
-                    @endauth
+                            @endauth
+                        @endif
+                    @endif
+
                     <div>
                         <button @click="openContract = true" class="btn2">
                             View Contract
                         </button>
                     </div>
 
-                    @auth
-                        @if ($deal == 'deal')
-                            <div>
-                                <button wire:click="sendCampaignReminder()" class="btn" wire:loading.attr="disabled"
-                                    wire:target="sendCampaignReminder">
-                                    <span wire:loading.remove wire:target="sendCampaignReminder">Send Reminder</span>
-                                    <span wire:loading wire:target="sendCampaignReminder">Sending...</span>
-                                </button>
+                    @if ($today->between($startDate, $endDate))
+                        @auth
+                            @if ($deal == 'deal')
+                                <div>
+                                    <button wire:click="sendCampaignReminder()" class="btn" wire:loading.attr="disabled"
+                                        wire:target="sendCampaignReminder">
+                                        <span wire:loading.remove wire:target="sendCampaignReminder">Send Reminder</span>
+                                        <span wire:loading wire:target="sendCampaignReminder">Sending...</span>
+                                    </button>
 
-                                <!-- Show loading text while processing -->
-                            </div>
+                                    <!-- Show loading text while processing -->
+                                </div>
+                            @endif
+                        @endauth
+                    @endif
+
+
+                    <div>
+                        @if ($today->between($startDate, $endDate))
+                            <span <span
+                                class="relative inline-flex size-3 rounded-full font-semibold bg-green-500">Ongoing..</span>
+                        @elseif ($today->gt($endDate))
+                            <span class="relative inline-flex size-3 rounded-full font-semibold bg-red-500">Ended</span>
                         @endif
-                    @endauth
-
+                    </div>
                 </div>
+
                 @if (session()->has('success'))
                     {{-- <div class="bg-green-100 text-green-600 p-3 rounded-md">
                             {{ session('success') }}
@@ -67,7 +87,7 @@
                 <div class="flex flex-col h-full overflow-x-auto mb-4 " id="chatContainer">
                     <div class="flex flex-col h-full">
                         <div class="grid grid-cols-12 gap-y-2" wire:poll.3s="fetchMessages">
-                            @foreach ($messages as $message)
+                            @forelse ($messages as $message)
                                 @if ($message->sender == 'owner')
                                     <div class="col-start-1 col-end-8 p-3 rounded-lg">
                                         <div class="flex flex-row items-center">
@@ -99,7 +119,60 @@
                                         </div>
                                     </div>
                                 @endif
-                            @endforeach
+
+                            @empty
+
+                                <div class="col-span-12 mt-10">
+
+                                    <div class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50 max-w-6xl mx-auto"
+                                        role="alert">
+                                        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                                        </svg>
+                                        <span class="sr-only">Info</span>
+                                        <div>
+                                            <span class="font-medium">Discuss Campaign Details:</span> Clearly define
+                                            the campaign's goal (brand awareness, product promotion, engagement, etc.),
+                                            share the expected deliverables (number of posts, stories, videos), and
+                                            agree on the content type and format
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50 max-w-5xl mx-auto"
+                                        role="alert">
+                                        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                                        </svg>
+                                        <span class="sr-only">Info</span>
+                                        <div>
+                                            <span class="font-medium"> Set Expectations & Payment Terms:</span> Decide
+                                            on the timeline and posting schedule, negotiate pricing and payment terms
+                                            (upfront, milestone-based, or post-campaign)
+                                            , and define performance
+                                            expectations such as engagement rate, impressions, and conversions.
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50 max-w-4xl mx-auto"
+                                        role="alert">
+                                        <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                                        </svg>
+                                        <span class="sr-only">Info</span>
+                                        <div>
+                                            <span class="font-medium">Confirm & Track Progress:</span> Finalize the
+                                            agreement, track progress with updates, and ensure results meet
+                                            expectations.
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforelse
 
 
                         </div>
@@ -199,7 +272,7 @@
         <div class="fixed items-center justify-center  flex top-0 left-0 mx-auto w-full h-full bg-gray-600 bg-opacity-30 z-50 transition duration-1000 ease-in-out"
             x-show="openContract" style="display: none;">
             <div @click.away="openContract = false"
-                class="bg-white w-[90%] md:w-[70%]  shadow-inner  border rounded-2xl overflow-auto  py-6 px-8 transition-all relative duration-700">
+                class="bg-white w-[90%] md:w-[70%] h-[70%] md:h-auto  shadow-inner  border rounded-2xl overflow-auto  py-6 px-8 transition-all relative duration-700">
                 <div class=" h-full ">
 
                     <div class="flex justify-between">
@@ -235,7 +308,6 @@
                                                 {{ $content->youtubeName }}
                                             @endisset.
                                         </div>
-                                        {{-- <div class="text-xs text-gray-500">Lead UI/UX Designer</div> --}}
                                         <div class="flex flex-row items-center mt-3">
 
                                             @php
@@ -270,7 +342,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-span-3 p-3 bg-gray-100 border-x">
+                                <div class="md:col-span-3 p-3 bg-gray-100 border-x">
                                     @auth
                                         <div class=" flex space-x-3 border-b-2 py-2">
                                             <span class="font-semibold">Designated Url:</span>
@@ -297,22 +369,8 @@
                                     </div>
                                 </div>
 
-                                <div>
-                                    {{-- <div class="relative flex items-center justify-center ">
-                                        <svg width="100" height="100" viewBox="0 0 100 100"
-                                            class="transform rotate-[-90deg]">
-                                            <!-- Background Circle -->
-                                            <circle cx="50" cy="50" r="46" stroke="#e5e7eb"
-                                                stroke-width="8" fill="none" />
-                                            <!-- Progress Circle -->
-                                            <circle cx="50" cy="50" r="46" stroke="currentColor"
-                                                stroke-width="8" fill="none" stroke-dasharray="289"
-                                                stroke-dashoffset="58" stroke-linecap="round"
-                                                class="text-red-500 transition-all duration-500" />
-                                        </svg>
-                                        <span class="absolute text-black font-bold text-sm">80%</span>
-                                    </div> --}}
-
+                                <div class="px-3 ">
+                                    <h6 class="text-md font-medium text-center pb-3">No of clicks</h6>
                                     <div wire:poll.2s="updateClicks"
                                         class="relative flex items-center justify-center">
                                         <svg width="100" height="100" viewBox="0 0 100 100"
@@ -329,6 +387,35 @@
                                         </svg>
                                         <span
                                             class="absolute text-black font-bold text-sm">{{ round($percentage) }}%</span>
+                                    </div>
+
+
+                                    <div class="flex flex-col ">
+                                        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                            <div class="inline-block min-w-full py-2 sm:px-3 lg:px-4">
+                                                <div class="overflow-hidden">
+                                                    <table
+                                                        class="min-w-full text-left text-sm font-light text-surface ">
+                                                        <thead class="border-b border-neutral-200 font-medium ">
+                                                            <tr>
+                                                                <th scope="col" class="px-2 py-4">#</th>
+                                                                <th scope="col" class="px-2 py-4">Device</th>
+                                                                <th scope="col" class="px-2 py-4">Count</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr class="border-b border-neutral-200">
+                                                                <td class="whitespace-nowrap px-2 py-4 font-medium">#
+                                                                </td>
+                                                                <td class="whitespace-nowrap px-2 py-4">Users</td>
+                                                                <td class="whitespace-nowrap px-2 py-4">
+                                                                    {{ $totalIps }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                 </div>

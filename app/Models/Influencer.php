@@ -12,4 +12,11 @@ class Influencer extends Model
     {
         return $this->hasMany(CampaignInquiry::class);
     }
+
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class, 'campaign_influencer')
+            ->withPivot('task_status'); 
+    }
+
 }

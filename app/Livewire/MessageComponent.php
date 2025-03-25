@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 // use App\Events\UserTypingEvent;
 
+use App\Mail\MessageMail;
 use App\Models\Campaign;
 use App\Models\Conversation;
 use App\Models\Influencer;
@@ -26,10 +27,12 @@ class MessageComponent extends Component
         $description,
         $uniqueUrl, $deal;
 
-    public $influencer;
+    public $influencer, $campaign;
 
     public $clicks;
-    public $percentage;
+    public $percentage, $totalIps;
+
+    public $startDate, $endDate;
 
 
     public function mount($uuid)
@@ -37,8 +40,14 @@ class MessageComponent extends Component
         $this->uuid = $uuid;
         $this->conversation = Conversation::whereUuid($uuid)->firstorFail();
         $this->deal = $this->conversation->status;
+        $this->totalIps = count($this->conversation->ip_addresses ?? []);
 
-        $this->influencer = Influencer::find($this->conversation->influencer_id);
+        $this->influencer = Influencer::findorFail($this->conversation->influencer_id);
+
+        $this->campaign = Campaign::findorFail($this->conversation->campaign_id);
+
+        $this->startDate = \Carbon\Carbon::parse($this->campaign->start_date);
+        $this->endDate = \Carbon\Carbon::parse($this->campaign->end_date);
 
         $this->uniqueUrl = $this->uniqueUrl = url('/short/' . $this->conversation->short_code);
         $this->amount =  $this->conversation->amount;
@@ -82,31 +91,9 @@ class MessageComponent extends Component
         $this->message = '';
         // $this->reset('message');
 
-        $sender = auth()->check() ? auth()->user()->name : 'influencer';
-
         session()->flash('success', 'Sent Successfully !');
 
-
-        $email = ['vicken408@gmail.com'];
-
-        $subject = env('MAIL_FROM_NAME') . ": " . $sender . ", Sent You message ";
-
-        $messageBody = "You have a message from {$sender}\n\n";
-
-        if ($sender !== 'influencer') {
-            $messageBody .= "Check the message here: " . route('conversation.influencer', ['uuid' => $this->uuid]);
-        }
-        else {
-            $messageBody .= "Check the message here: " . route('conversation.owner', ['uuid' => $this->uuid]);
-        }
-
-
-
-        Mail::raw($messageBody, function ($message) use ($email, $subject) {
-            $message->to($email)
-                ->subject($subject)
-                ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
-        });
+        Mail::to('vicken408@gmail.com')->queue(new MessageMail($this->uuid));
 
         $this->dispatch('scrollUp');
     }
@@ -182,8 +169,8 @@ class MessageComponent extends Component
 
         // $email = $this->influencer->emails;
         $email = 'vicken408@gmail.com';
-        $campaignName = "Campaign Reminder";
-        $campaignDeadline = "20/10/2025";
+        $campaignName = ucfirst(strtolower($this->campaign->title));
+        $campaignDeadline = $this->campaign->end_date;
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             session()->flash('error', 'Invalid email address.');
             return;

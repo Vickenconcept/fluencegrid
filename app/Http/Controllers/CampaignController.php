@@ -53,43 +53,43 @@ class CampaignController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    // public function short_code_url($code, Request $request)
-    // {
-    //     $shortenedUrl = Conversation::where('short_code', $code)->firstOrFail();
-
-    //     $ip = $request->ip();
-    //     $trackedIps = $shortenedUrl->ip_addresses ?? [];
-    //     if (!in_array($ip, $trackedIps)) {
-    //         $trackedIps[] = $ip;
-    //     }
-
-    //     $shortenedUrl->update([
-    //         'clicks' => $shortenedUrl->clicks + 1,
-    //         'ip_addresses' => $trackedIps,
-    //     ]);
-
-    //     return redirect()->to($shortenedUrl->original_url);
-    // }
-
     public function short_code_url($code, Request $request)
     {
         $shortenedUrl = Conversation::where('short_code', $code)->firstOrFail();
 
         $ip = $request->ip();
         $trackedIps = $shortenedUrl->ip_addresses ?? [];
-
         if (!in_array($ip, $trackedIps)) {
             $trackedIps[] = $ip;
-
-            // Update clicks only if it's a new device
-            $shortenedUrl->update([
-                'clicks' => $shortenedUrl->clicks + 1,
-                'ip_addresses' => $trackedIps,
-            ]);
         }
+
+        $shortenedUrl->update([
+            'clicks' => $shortenedUrl->clicks + 1,
+            'ip_addresses' => $trackedIps,
+        ]);
 
         return redirect()->to($shortenedUrl->original_url);
     }
+
+    // public function short_code_url($code, Request $request)
+    // {
+    //     $shortenedUrl = Conversation::where('short_code', $code)->firstOrFail();
+
+    //     $ip = $request->ip();
+    //     $trackedIps = $shortenedUrl->ip_addresses ?? [];
+
+    //     if (!in_array($ip, $trackedIps)) {
+    //         $trackedIps[] = $ip;
+
+    //         // Update clicks only if it's a new device
+    //         $shortenedUrl->update([
+    //             'clicks' => $shortenedUrl->clicks + 1,
+    //             'ip_addresses' => $trackedIps,
+    //         ]);
+    //     }
+
+    //     return redirect()->to($shortenedUrl->original_url);
+    // }
 
 
     /**
@@ -172,13 +172,15 @@ class CampaignController extends Controller
             $group = influencersGroup::with('owner')->find($influencer->influencers_group_id);
             $owner = $group?->owner;
 
-            if ($owner) {
-                $owner->conversations()->create([
-                    'uuid' => Str::uuid(),
-                    'influencer_id' => $influencer->id,
-                    'campaign_id' => $campaign->id,
-                    'status' => 'pending'
-                ]);
+            if ($response == 'accepted') {
+                if ($owner) {
+                    $owner->conversations()->create([
+                        'uuid' => Str::uuid(),
+                        'influencer_id' => $influencer->id,
+                        'campaign_id' => $campaign->id,
+                        'status' => 'pending'
+                    ]);
+                }
             }
 
             $owner->notify(new CampaignResponseNotification($campaign, $influencer, $response));
