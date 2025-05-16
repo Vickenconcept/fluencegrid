@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageMail extends Mailable implements ShouldQueue
+class MessageMail extends Mailable implements ShouldQueue 
 {
     use Queueable, SerializesModels;
 
@@ -35,7 +35,6 @@ class MessageMail extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        dd($this->sender);
         return $this->subject(env('MAIL_FROM_NAME') . ": " . $this->sender . ", Sent You a Message")
                     ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
                     ->text('emails.message_plain') 

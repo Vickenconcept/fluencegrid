@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\influencersGroup;
+use App\Models\InfluencersGroup;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class influencersGroupController extends Controller
+class InfluencersGroupController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -44,7 +44,7 @@ class influencersGroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(influencersGroup $group)
+    public function show(InfluencersGroup $group)
     {
         $group->load('influencers');
         return view('group.show', compact('group'));
@@ -56,7 +56,7 @@ class influencersGroupController extends Controller
             'name' => 'required|string',
         ]);
 
-        $group = influencersGroup::where('id', $request->input('id'))->firstOrFail();
+        $group = InfluencersGroup::where('id', $request->input('id'))->firstOrFail();
         $group->name = $request->input('name');
         $group->update();
 
@@ -66,7 +66,7 @@ class influencersGroupController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(influencersGroup $influencersGroup)
+    public function edit(InfluencersGroup $InfluencersGroup)
     {
         //
     }
@@ -74,7 +74,7 @@ class influencersGroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, influencersGroup $influencersGroup)
+    public function update(Request $request, InfluencersGroup $InfluencersGroup)
     {
         //
     }
@@ -82,7 +82,7 @@ class influencersGroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(influencersGroup $group)
+    public function destroy(InfluencersGroup $group)
     {
         $group->delete();
         return back()->with('success', 'Deleted Successfully');

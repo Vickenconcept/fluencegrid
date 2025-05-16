@@ -8,6 +8,7 @@ use App\Mail\MessageMail;
 use App\Models\Campaign;
 use App\Models\Conversation;
 use App\Models\Influencer;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -82,7 +83,15 @@ class MessageComponent extends Component
 
     public function saveMessage()
     {
+        $owner = User::findOrFail($this->conversation->user_id);
+
+
         $sender = auth()->check() ? 'owner' : 'influencer';
+        $email = auth()->check() ?
+          //$this->influencer->emails 
+          ['vicken408@gmail.com']:
+           $owner->email;
+
 
         $this->conversation->messages()->create([
             'sender' => $sender,
@@ -93,7 +102,8 @@ class MessageComponent extends Component
 
         session()->flash('success', 'Sent Successfully !');
 
-        Mail::to('vicken408@gmail.com')->queue(new MessageMail($this->uuid));
+
+        Mail::to($email)->queue(new MessageMail($this->uuid));
 
         $this->dispatch('scrollUp');
     }

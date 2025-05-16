@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CampaignInquiry;
 use App\Models\Conversation;
 use App\Models\Influencer;
-use App\Models\influencersGroup;
+use App\Models\InfluencersGroup;
 use App\Models\User;
 use App\Notifications\CampaignResponseNotification;
 use Illuminate\Http\Request;
@@ -169,7 +169,7 @@ class CampaignController extends Controller
                 ],
             ]);
 
-            $group = influencersGroup::with('owner')->find($influencer->influencers_group_id);
+            $group = InfluencersGroup::with('owner')->find($influencer->influencers_group_id);
             $owner = $group?->owner;
 
             if ($response == 'accepted') {

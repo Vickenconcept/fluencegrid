@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Influencer;
-use App\Models\influencersGroup;
+use App\Models\InfluencersGroup;
 use App\Services\InfluencerService;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
@@ -40,7 +40,10 @@ class Facebook extends Component
         $this->followers = 1000;
         $this->details =  Cache::get("{$this->platform}_details" . auth()->id()) ?? [];
 
-        $this->groups = influencersGroup::latest()->get();
+        // $this->groups = InfluencersGroup::latest()->get();
+        $this->groups = Cache::remember('influencer_groups_'. auth()->id(), now()->addMinutes(10), function () {
+            return InfluencersGroup::latest()->get();
+        });
     }
 
     public function getInfluencer()
@@ -73,7 +76,7 @@ class Facebook extends Component
         );
         
         // dd($this->details);
-        return $this->details;
+        return $this->details ?? [];
     }
 
     public function resetData(){
@@ -96,7 +99,7 @@ class Facebook extends Component
         $user = auth()->user();
         $user->influencersGroups()->create($validateData);
 
-        $this->groups = influencersGroup::latest()->get();
+        $this->groups = InfluencersGroup::latest()->get();
         $this->name = '';
         $this->description = '';
     }
@@ -157,8 +160,7 @@ class Facebook extends Component
                     $filters[] = ["filterKey" => "followers", "op" => ">", "value" => 1000000];
                     break;
                 default:
-                    $filters[] = ["filterKey" => "followers", "op" => ">", "value" => 10000];
-                    $filters[] = ["filterKey" => "followers", "op" => "<", "value" => 50000];
+                    $filters[] = ["filterKey" => "followers", "op" => "<", "value" => 10000];
                     break;
             }
         }

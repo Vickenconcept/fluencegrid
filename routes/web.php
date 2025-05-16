@@ -5,7 +5,8 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CampaignInquiryController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\InfluencerController;
-use App\Http\Controllers\influencersGroupController;
+use App\Http\Controllers\InfluencersGroupController;
+use App\Http\Controllers\JVZooWebhookController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PlatformController;
@@ -103,8 +104,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('influencers/{influencer}', [InfluencerController::class, 'destroy'])->name('influencer.delete');
     Route::resource('influencers', InfluencerController::class);
     
-    Route::post('groups/update-name', [influencersGroupController::class, 'changeName'])->name('changeGroupName');
-    Route::resource('groups', influencersGroupController::class);
+    Route::post('groups/update-name', [InfluencersGroupController::class, 'changeName'])->name('changeGroupName');
+    Route::resource('groups', InfluencersGroupController::class);
 
     Route::controller(CampaignController::class)->group(function () {
         Route::post('campaign/update-name', 'changeName')->name('changeCampaignName');
@@ -115,10 +116,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('reseller', ResellerController::class);
     Route::get('conversation/{uuid}/owner', [ConversationController::class, 'owner_chat'])->name('conversation.owner');
 
+    Route::view('dfy_traffic', 'management.dfy_traffic')->name('dfy_traffic');
+    Route::view('affiliate_marketing', 'management.affiliate_marketing')->name('affiliate_marketing');
+
     // Route::post('inquiries/{campaignId}/{influencerId}', [CampaignInquiryController::class, 'sendInquiry']);
 });
 
 
+Route::post('/ipn/jvzoo', [JVZooWebhookController::class, 'JVZoo']);
 
 
 Route::get('test', function () {

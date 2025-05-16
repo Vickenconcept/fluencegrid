@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Influencer;
-use App\Models\influencersGroup;
+use App\Models\InfluencersGroup;
 use App\Services\InfluencerService;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
@@ -41,7 +41,12 @@ class Youtube extends Component
         $this->details =  Cache::get("{$this->platform}_details" . auth()->id()) ?? [];
 
         // dd($this->details);
-        $this->groups = influencersGroup::latest()->get();
+        // $this->groups = InfluencersGroup::latest()->get();
+
+        
+        $this->groups = Cache::remember('influencer_groups_'. auth()->id(), now()->addMinutes(10), function () {
+            return InfluencersGroup::latest()->get();
+        });
     }
 
     public function getInfluencer()
@@ -73,17 +78,19 @@ class Youtube extends Component
             $this->niche,
 
         );
-        
+
         // dd($this->details);
-        return $this->details;
+        return $this->details ?? [];
     }
 
 
-    public function resetData(){
+    public function resetData()
+    {
 
-        Cache::forget("{$this->platform}_details" . auth()->id());
+        // Cache::forget("{$this->platform}_details" . auth()->id());
+        $this->details = [];
         $this->dispatch('refreshPage');
-        return ;
+        return;
     }
 
 
@@ -98,7 +105,7 @@ class Youtube extends Component
         $user = auth()->user();
         $user->influencersGroups()->create($validateData);
 
-        $this->groups = influencersGroup::latest()->get();
+        $this->groups = InfluencersGroup::latest()->get();
         $this->name = '';
         $this->description = '';
     }
@@ -115,6 +122,7 @@ class Youtube extends Component
             'selectedGroups' =>  'required|array',
             'selectInfluencer' =>  'required',
         ]);
+        dd($this->selectedGroups);
 
         foreach ($validatedData['selectedGroups'] as $groupId) {
             Influencer::create([
@@ -159,8 +167,7 @@ class Youtube extends Component
                     $filters[] = ["filterKey" => "subscribers", "op" => ">", "value" => 1000000];
                     break;
                 default:
-                    $filters[] = ["filterKey" => "subscribers", "op" => ">", "value" => 10000];
-                    $filters[] = ["filterKey" => "subscribers", "op" => "<", "value" => 50000];
+                $filters[] = ["filterKey" => "subscribers", "op" => "<", "value" => 10000];
                     break;
             }
         }

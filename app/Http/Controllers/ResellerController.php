@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 
 class ResellerController extends Controller
 {
@@ -17,6 +18,9 @@ class ResellerController extends Controller
      */
     public function index()
     {
+        if (!auth()->user()->can('manage-reseller')) {
+            throw UnauthorizedException::forPermissions(['manage-reseller']);
+        }
         return view('reseller');
     }
 

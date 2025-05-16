@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\DataAccessScope;
 use Illuminate\Database\Eloquent\Model;
 
-class influencersGroup extends Model
+class InfluencersGroup extends Model
 {
     protected $guarded = [];
 

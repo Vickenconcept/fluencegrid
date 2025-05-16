@@ -6,7 +6,7 @@ use App\Mail\InfluencerCampaignInvite;
 use App\Mail\InfluencerCustomInvite;
 use App\Models\Campaign;
 use App\Models\Influencer;
-use App\Models\influencersGroup;
+use App\Models\InfluencersGroup;
 use App\Services\ChatGptService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;

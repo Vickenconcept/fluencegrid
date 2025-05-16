@@ -5,6 +5,7 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\FetchInfluencerDetailsJob;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 
 class InfluencerService
@@ -52,37 +53,50 @@ class InfluencerService
         );
 
 
-        //dd($filters);
+        // dd($filters);
         $maxResults = 10;
         $sortBy = $platform == 'youtube' ? 'subscribers' : 'followers';
-        $response = $this->client->request('POST', $this->config['searchEndpoint'], [
-            'body' => json_encode([
-                "maxResults" => min($maxResults, 10),
-                "sortBy" => $sortBy,
-                // "sortBy" => "followers",
-                "offset" => 0,
-                "desc" => true,
-                "filters" => $filters,
-                // "filters" => [
-                //     [
-                //         "filterKey" => "followers",
-                //         "op" => ">",
-                //         "value" => 1000,
-                //     ]
-                // ],
+        try {
+            //code...
+            $response = $this->client->request('POST', $this->config['searchEndpoint'], [
+                'body' => json_encode([
+                    "maxResults" => min($maxResults, 10),
+                    "sortBy" => $sortBy,
+                    // "sortBy" => "followers",
+                    "offset" => 0,
+                    "desc" => true,
+                    "filters" => $filters,
+                    // "filters" => [
+                    //     [
+                    //         "filterKey" => "followers",
+                    //         "op" => ">",
+                    //         "value" => 1000,
+                    //     ]
+                    // ],
 
-            ]),
-            'headers' => [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'apiId' => $this->config['apiId'],
-            ],
-        ]);
+                ]),
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'apiId' => $this->config['apiId'],
+                ],
+            ]);
 
-        $searchResults = json_decode($response->getBody(), true);
+            $searchResults = json_decode($response->getBody(), true);
 
-        // dd($searchResults['data']);
-        return $searchResults['data'] ?? [];
+            // dd($searchResults['data']);
+            return $searchResults['data'] ?? [];
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() === 403) {
+                return response()->json([
+                    'error' => 'API Quota Exceeded. Please try again later.',
+                ], 403);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => 'Something went wrong. Please try again.',
+            ], 500);
+        }
     }
 
     public function fetchPlatformInfluencerDetails(
@@ -125,6 +139,18 @@ class InfluencerService
             $niche,
             $platform,
         );
+
+        // Ensure $influencers is an array before proceeding
+        if ($influencers instanceof \Illuminate\Http\JsonResponse) {
+            // dd( $influencers);
+            return []; // Return the error response directly
+        }
+        
+        if (!is_array($influencers)) {
+            return response()->json([
+                'error' => 'Invalid data format received from API.',
+            ], 500);
+        }
 
         $platformIds = $influencers;
         if (empty($platformIds)) {
@@ -184,32 +210,6 @@ class InfluencerService
 
 
 
-
-        // foreach (['avatar', 'cover'] as $key) {
-        //     if (isset($responseData['data'][$platformKey][$key])) {
-        //         $imageUrl = $responseData['data'][$platformKey][$key];
-
-        //         if (!empty($imageUrl) && filter_var($imageUrl, FILTER_VALIDATE_URL)) {
-        //             try {
-        //                 $imageData = @file_get_contents($imageUrl);
-
-        //                 if ($imageData !== false) {
-        //                     $base64Image = base64_encode($imageData);
-        //                     $responseData['data'][$platformKey][$key] = 'data:image/jpeg;base64,' . $base64Image;
-        //                 } else {
-        //                     Log::warning("Failed to fetch image data for {$key} from {$imageUrl}");
-        //                     $responseData['data'][$platformKey][$key] = 'https://i.pravatar.cc/300';
-        //                 }
-        //             } catch (\Exception $e) {
-        //                 Log::error("Error fetching image for {$key}: {$e->getMessage()} from {$imageUrl}");
-        //                 $responseData['data'][$platformKey][$key] = 'https://i.pravatar.cc/300';
-        //             }
-        //         } else {
-        //             Log::warning("Invalid or empty URL for {$key}: {$imageUrl}");
-        //             $responseData['data'][$platformKey][$key] = 'https://i.pravatar.cc/300';
-        //         }
-        //     }
-        // }
 
         foreach (['avatar', 'cover'] as $key) {
             if (isset($responseData['data'][$platformKey][$key])) {
@@ -330,21 +330,21 @@ class InfluencerService
             ];
         }
 
-        if ($hashtags !== null) {
+        if ($hashtags !== null && $hashtags !== '') {
             $filters[] = [
                 "filterKey" => "hashtags",
                 "op" => "=",
                 "value" => $hashtags
             ];
         }
-        if ($topic !== null) {
+        if ($topic !== null && $topic !== '') {
             $filters[] = [
                 "filterKey" => "topic",
                 "op" => "=",
                 "value" => $topic
             ];
         }
-        if ($niche !== null) {
+        if ($niche !== null && $niche !== '') {
             $filters[] = [
                 "filterKey" => "niche",
                 "op" => "=",

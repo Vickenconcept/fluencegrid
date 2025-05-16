@@ -18,7 +18,10 @@
                 </li>
 
                 @php
-                    $platforms = \App\Models\Platform::all();
+                    // $platforms = \App\Models\Platform::all();
+                    $platforms = cache()->rememberForever('platforms', function () {
+                        return \App\Models\Platform::all();
+                    });
                 @endphp
 
 
@@ -32,15 +35,21 @@
                         <a href="{{ route('platform.search', ['platform' => strtolower($platform->name)]) }}"
                             class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group transition duration-500 ease-in-out {{ $isActive ? 'bg-gradient-to-r from-[#0F1523] from-70%  to-[#B5FFAB] font-medium text-white hover:bg-gradient-to-br from-[#0F1523] from-70%  to-[#B5FFAB]' : '' }}">
                             @if (strtolower($platform->name) == 'facebook')
-                                <i class='bx bxl-facebook-circle text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                                <i
+                                    class='bx bxl-facebook-circle text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
                             @elseif (strtolower($platform->name) == 'instagram')
-                                <i class='bx bxl-instagram text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                                <i
+                                    class='bx bxl-instagram text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
                             @elseif (strtolower($platform->name) == 'youtube')
-                                <i class='bx bxl-youtube text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                                <i
+                                    class='bx bxl-youtube text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
                             @elseif (strtolower($platform->name) == 'tiktok')
-                                <i class='bx bxl-tiktok text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                                <i
+                                    class='bx bxl-tiktok text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
                             @else
-                                <i class='bx bxl-question-mark text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i> <!-- Fallback icon -->
+                                <i
+                                    class='bx bxl-question-mark text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                                <!-- Fallback icon -->
                             @endif
                             <span class="text-sm">{{ ucfirst($platform->name) }}</span>
                         </a>
@@ -69,13 +78,36 @@
                     </a>
                 </li>
                 <hr class="border border-slate-300">
-                <li>
-                    <a href="{{ route('reseller.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group transition duration-500 ease-in-out {{ request()->routeIs('reseller.index') ? 'bg-gradient-to-r from-[#0F1523] from-70%  to-[#B5FFAB] font-medium text-white hover:bg-gradient-to-br from-[#0F1523] from-70%  to-[#B5FFAB]' : '' }}">
-                        <i class='bx bx-refresh text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
-                        <span class="text-sm">Reseller</span>
-                    </a>
-                </li>
+                @can(['manage-reseller'])
+                    <li>
+                        <a href="{{ route('reseller.index') }}"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group transition duration-500 ease-in-out {{ request()->routeIs('reseller.index') ? 'bg-gradient-to-r from-[#0F1523] from-70%  to-[#B5FFAB] font-medium text-white hover:bg-gradient-to-br from-[#0F1523] from-70%  to-[#B5FFAB]' : '' }}">
+                            <i class='bx bx-refresh text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                            <span class="text-sm">Reseller</span>
+                        </a>
+                    </li>
+                @endcan
+
+                @can(['access-dfy-marketing'])
+                    <li>
+                        <a href="{{ route('dfy_traffic') }}"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group transition duration-500 ease-in-out {{ request()->routeIs('dfy_traffic') ? 'bg-gradient-to-r from-[#0F1523] from-70%  to-[#B5FFAB] font-medium text-white hover:bg-gradient-to-br from-[#0F1523] from-70%  to-[#B5FFAB]' : '' }}">
+                            <i class='bx bx-refresh text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                            <span class="text-sm">DFY Unlimited Traffic</span>
+                        </a>
+                    </li>
+                @endcan
+                @can(['access-affiliate-training'])
+                    <li>
+                        <a href="{{ route('affiliate_marketing') }}"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group transition duration-500 ease-in-out {{ request()->routeIs('access-affiliate-training') ? 'bg-gradient-to-r from-[#0F1523] from-70%  to-[#B5FFAB] font-medium text-white hover:bg-gradient-to-br from-[#0F1523] from-70%  to-[#B5FFAB]' : '' }}">
+                            <i class='bx bx-refresh text-xl mr-2 text-blue-600 bg-slate-200 px-1 py-0.5 rounded-md'></i>
+                            <span class="text-sm">Affiliate
+                                Marketing Coachingc</span>
+                        </a>
+                    </li>
+                @endcan
+               
                 <li class="">
                     <a href="{{ route('auth.logout') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group transition duration-500 ease-in-out">

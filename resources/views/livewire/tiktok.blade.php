@@ -11,7 +11,8 @@
                 <div class="flex flex-col">
                     <label for="name" class="text-slate-800 text-sm font-medium">Range</label>
                     <!-- Dropdown select for predefined ranges -->
-                    <select wire:model="followersRange" wire:change="getFiltersByRange()" class="form-control" :class="'!bg-white'">
+                    <select wire:model="followersRange" wire:change="getFiltersByRange()" class="form-control"
+                        :class="'!bg-white'">
                         <option value="0-10000">Less than 10k</option>
                         <option value="10000-50000">10k - 50k</option>
                         <option value="50000-500000">50k - 500k</option>
@@ -54,16 +55,14 @@
                 <div class="flex flex-col">
                     <label for="hashtags" class="text-stone-600 text-sm font-medium">hashtags:
                     </label>
-                    <input type="text" id="hashtags"
-                        class="form-control" :class="'!bg-white'"
+                    <input type="text" id="hashtags" class="form-control" :class="'!bg-white'"
                         wire:model="hashtags" placeholder="Enter hashtags">
                 </div>
 
 
                 <div class="flex flex-col">
                     <label for="name" class="text-stone-600 text-sm font-medium">Country</label>
-                    <select wire:model.live="country"
-                        class="form-control" :class="'!bg-white'">
+                    <select wire:model.live="country" class="form-control" :class="'!bg-white'">
                         <option value="USA">United States</option>
                         <option value="Canada">Canada</option>
                         <option value="Mexico">Mexico</option>
@@ -88,8 +87,8 @@
                     </select>
                 </div>
 
-                
-               
+
+
 
             </div>
 
@@ -106,8 +105,15 @@
                     </span>
                     <span>Search</span>
                 </button>
-                <button wire:click="resetData()"
-                    class="active:scale-95 rounded-lg  px-8 py-2 text-gray-600 outline-none focus:ring hover:opacity-90 border border-slate-600 ">Reset</button>
+                <button wire:click="resetData()" wire:loading.attr="disabled" wire:target="resetData"
+                    class="active:scale-95 rounded-lg px-8 py-2 text-gray-600 outline-none focus:ring hover:opacity-90 border border-slate-600 relative">
+
+                    <span wire:loading.remove wire:target="resetData">Reset</span>
+
+                    <span wire:loading wire:target="resetData" class="">
+                        Loading...
+                    </span>
+                </button>
             </div>
         </div>
     </div>
@@ -116,9 +122,9 @@
 
 
 
-    <div class="grid sm:grid-cols-3 gap-2">
+    <div class="grid sm:grid-cols-3 xl:grid-cols-4 gap-2">
         <!-- component -->
-        @forelse ($details as $detail)
+        @forelse ($details  as $detail)
             <div class="relative bg-white p-3 rounded-lg shadow-md max-w-md w-full group">
                 <ul
                     class="absolute top-0 right-0 z-10  divide-y bg-gray-50 shadow-sm  hidden group-hover:flex transition-all duration-300 ease-in-out">
@@ -128,7 +134,7 @@
                         </a>
                     </li>
                     <li class="p-2 hover:bg-gray-200 hover:shadow-md " title="Add to store">
-                        <button type="button" data-modal-target="crypto-modal" data-modal-toggle="crypto-modal"
+                        <button type="button"
                             @click="modalIsOpen = true ; tiktok_influencer_dettail = @js($detail['data']['basicTikTok'])"
                             wire:click="setInfluencer({{ json_encode($detail['data']['basicTikTok']) }})">
                             <i class='bx bx-plus'></i>
@@ -222,13 +228,22 @@
                 </div>
             </div>
         @empty
+            <div class="flex items-center justify-center col-span-4 py-10">
+                <div>
+                    <div class="size-20 overflow-hidden">
+                        <img src="{{ asset('images/loader-1.png') }}" alt=""
+                            class="w-full h-full object-cover object-center">
+                    </div>
+                    <p class="text-center font-semibold text-md">No Data Found</p>
+                </div>
+            </div>
         @endforelse
 
 
     </div>
-    @if (count($details) > 0)
+    @if (count($details) > 0 && count($details) < 70)
         <div class="py-20 mb-10 col-span-3 flex justify-center">
-            <button wire:click="$dispatch('refreshPage')">Load More</button>
+            <button wire:click="$dispatch('refreshPage')" class="active:scale-95 rounded-lg px-8 py-2 text-gray-600 outline-none focus:ring hover:opacity-90 border border-slate-600 relative bg-white">Load More</button>
         </div>
     @endif
 
@@ -270,8 +285,10 @@
                                 <li>
                                     <label for="{{ $group->id }}"
                                         class=" cursor-pointer flex items-center p-3 text-base font-bold text-gray-900 rounded-lg bg-gray-50 hover:bg-gray-100 group hover:shadow ">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
                                         </svg>
 
                                         <span
@@ -301,12 +318,14 @@
                                         <label for="name"
                                             class="block mb-2 text-sm font-medium text-gray-900 ">Name *</label>
                                         <input type="text" name="name" id="name" wire:model.live="name"
-                                            class="form-control" :class="'!bg-white'" placeholder="Enter Group name" required />
+                                            class="form-control" :class="'!bg-white'" placeholder="Enter Group name"
+                                            required />
                                     </div>
                                     <div>
                                         <label for="description"
                                             class="block mb-2 text-sm font-medium text-gray-900 ">Description</label>
-                                        <textarea name="description" id="description" wire:model.live="description" class="form-control" :class="'!bg-white'"></textarea>
+                                        <textarea name="description" id="description" wire:model.live="description" class="form-control"
+                                            :class="'!bg-white'"></textarea>
                                     </div>
                                     <button type="submit" @click="tab = 'group_tab'" wire:loading.attr="disabled"
                                         wire:target="creatGroup"
@@ -357,10 +376,11 @@
                 intervalId: null
             }" x-init="intervalId = setInterval(() => {
                 currentIndex = (currentIndex + 1) % messages.length;
-            }, 4000);" x-text="messages[currentIndex]">
+            }, 4000);"
+                x-text="messages[currentIndex]">
             </p>
 
-            
+
         </div>
     </div>
 
